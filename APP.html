@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pet Care Bot — Frontend Prototype</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --muted:#9aa4b2; --accent:#6ee7b7; --accent-2:#60a5fa; --glass: rgba(255,255,255,0.04);
+      --glass-2: rgba(255,255,255,0.03);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#071028 0%, #071226 60%);color:#e6eef6;min-height:100vh}
+    .container{max-width:1100px;margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#042029}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .grid{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-top:18px}
+    .card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+
+    /* Left column */
+    .dashboard-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .small-card{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent)}
+    .small-card h3{margin:0;font-size:13px}
+    .small-card p{margin:6px 0 0;color:var(--muted);font-size:12px}
+
+    .section{margin-top:14px}
+    .section h2{margin:0 0 10px 0}
+
+    .pets-list{display:flex;flex-direction:column;gap:10px}
+    .pet-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:var(--glass)}
+    .pet-avatar{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#06b6d4);display:flex;align-items:center;justify-content:center;font-weight:700}
+    .pet-meta{flex:1}
+    .pet-meta h4{margin:0}
+    .pet-meta p{margin:4px 0 0;color:var(--muted);font-size:12px}
+
+    .actions{display:flex;gap:8px}
+    button.btn{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:0;padding:8px 12px;border-radius:8px;color:#042029;font-weight:600;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+
+    /* right column */
+    .chat-window{display:flex;flex-direction:column;height:550px}
+    .chat-messages{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+    .msg{max-width:78%;padding:10px;border-radius:12px}
+    .msg.user{margin-left:auto;background:linear-gradient(90deg,#1b6bff44, #60a5fa22);border:1px solid rgba(96,165,250,0.08)}
+    .msg.bot{background:var(--glass-2);border:1px solid rgba(255,255,255,0.03)}
+    .chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid rgba(255,255,255,0.02)}
+    .chat-input input{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+
+    .reminders{display:flex;flex-direction:column;gap:8px}
+    .reminder{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:8px;background:linear-gradient(90deg,#04263b22,#04202b22);border:1px solid rgba(255,255,255,0.02)}
+
+    /* modal / forms */
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);backdrop-filter: blur(6px)}
+    .modal .card{width:520px}
+    .form-row{display:flex;gap:10px;margin-top:10px}
+    .form-row input,.form-row select,textarea{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+
+    footer{margin-top:28px;color:var(--muted);font-size:13px;text-align:center}
+
+    @media (max-width:980px){.grid{grid-template-columns:1fr;}.chat-window{height:420px}.card{padding:12px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">PB</div>
+        <div>
+          <h1>Pet Care Bot — Frontend Prototype</h1>
+          <p class="lead">Hackathon-ready UI: Chatbot · Reminders · Pet Profiles · AI integration</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="addPetBtn">+ Add Pet</button>
+        <button class="ghost" id="openGuide">Project Guide</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT -->
+      <div>
+        <div class="card">
+          <div class="dashboard-cards">
+            <div class="small-card">
+              <h3 id="totalPets">0 Pets</h3>
+              <p>Registered pets</p>
+            </div>
+            <div class="small-card">
+              <h3 id="upcomingRem">0 Reminders</h3>
+              <p>Active reminders</p>
+            </div>
+            <div class="small-card">
+              <h3 id="chatsCount">Chat Ready</h3>
+              <p>AI Chatbot integration placeholder</p>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Pets</h2>
+            <div class="pets-list" id="petsList"></div>
+          </div>
+
+          <div class="section">
+            <h2>Reminders</h2>
+            <div class="reminders" id="reminderList"></div>
+          </div>
+        </div>
+
+        <div class="card section">
+          <h2>Quick Actions</h2>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button class="btn" id="addReminderBtn">Add Reminder</button>
+            <button class="ghost" id="exportBtn">Export Data</button>
+            <button class="ghost" id="importBtn">Import Data</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div>
+        <div class="card chat-window">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <h2 style="margin:0">Pet Care Chat</h2>
+              <p class="lead" style="margin-top:6px">Ask about feeding, symptoms, or quick tips — AI integration included.</p>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select id="petSelector" style="padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03)"></select>
+              <button class="ghost" id="clearChat">Clear</button>
+            </div>
+          </div>
+
+          <div class="chat-messages" id="chatMessages" aria-live="polite"></div>
+
+          <div class="chat-input">
+            <input id="chatInput" placeholder="Ask something about your pet, e.g. 'My dog is vomiting — what should I do?'" />
+            <button class="btn" id="sendChat">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>Prototype UI created for hackathon. Replace <code>/api/chat</code> placeholder with your backend or AI API.</footer>
+  </div>
+
+  <!-- MODALS -->
+  <div id="modal" style="display:none" class="modal">
+    <div class="card">
+      <h3 id="modalTitle">Add Pet</h3>
+      <div class="form-row">
+        <input id="petName" placeholder="Pet name" />
+        <input id="petAge" placeholder="Age (years)" />
+      </div>
+      <div class="form-row" style="margin-top:10px">
+        <input id="petBreed" placeholder="Breed" />
+        <select id="petType"><option>Dog</option><option>Cat</option><option>Other</option></select>
+      </div>
+      <div style="margin-top:10px">
+        <textarea id="petNotes" rows="3" placeholder="Notes / medical history"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+        <button class="ghost" id="cancelModal">Cancel</button>
+        <button class="btn" id="savePet">Save Pet</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="remModal" style="display:none" class="modal">
+    <div class="card">
+      <h3>Add Reminder</h3>
+      <div class="form-row">
+        <select id="remPet"></select>
+        <input id="remTitle" placeholder="Reminder title" />
+      </div>
+      <div class="form-row" style="margin-top:10px">
+        <input id="remDate" type="datetime-local" />
+        <select id="remFreq"><option value="once">Once</option><option value="daily">Daily</option><option value="weekly">Weekly</option></select>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+        <button class="ghost" id="cancelRem">Cancel</button>
+        <button class="btn" id="saveRem">Save Reminder</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Pet Care Bot — merged frontend with rule-based AI and API hook
+    const STORAGE_KEY = 'petcare:data:v1';
+    const defaultData = { pets: [], reminders: [], chats: [] };
+
+    function readData(){
+      try{const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return JSON.parse(JSON.stringify(defaultData)); return JSON.parse(raw);}catch(e){console.error(e);return JSON.parse(JSON.stringify(defaultData));}
+    }
+    function writeData(data){localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); renderAll();}
+
+    // UI refs
+    const petsList = document.getElementById('petsList');
+    const totalPets = document.getElementById('totalPets');
+    const upcomingRem = document.getElementById('upcomingRem');
+
+    const addPetBtn = document.getElementById('addPetBtn');
+    const modal = document.getElementById('modal');
+    const savePet = document.getElementById('savePet');
+    const cancelModal = document.getElementById('cancelModal');
+
+    const petName = document.getElementById('petName');
+    const petAge = document.getElementById('petAge');
+    const petBreed = document.getElementById('petBreed');
+    const petType = document.getElementById('petType');
+    const petNotes = document.getElementById('petNotes');
+
+    const remModal = document.getElementById('remModal');
+    const addReminderBtn = document.getElementById('addReminderBtn');
+    const remPet = document.getElementById('remPet');
+    const remTitle = document.getElementById('remTitle');
+    const remDate = document.getElementById('remDate');
+    const remFreq = document.getElementById('remFreq');
+    const saveRem = document.getElementById('saveRem');
+    const cancelRem = document.getElementById('cancelRem');
+
+    const petSelector = document.getElementById('petSelector');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendChat = document.getElementById('sendChat');
+    const clearChat = document.getElementById('clearChat');
+
+    const reminderList = document.getElementById('reminderList');
+
+    // seed sample data
+    (function seed(){
+      const data = readData();
+      if(data.pets.length===0){
+        data.pets.push({id:genId(),name:'Mochi',age:3,breed:'Beagle',type:'Dog',notes:'Allergic to certain treats.'});
+        data.pets.push({id:genId(),name:'Pixel',age:2,breed:'Siamese',type:'Cat',notes:'Neutered, microchipped.'});
+        data.reminders.push({id:genId(),petId:data.pets[0].id,title:'Vaccination due',datetime:new Date(Date.now()+86400000).toISOString(),freq:'once'});
+        writeData(data);
+      }
+    })();
+
+    // helpers
+    function genId(){return 'id_' + Math.random().toString(36).slice(2,9)}
+    function fmtDate(iso){try{return new Date(iso).toLocaleString()}catch(e){return iso}}
+
+    function renderAll(){
+      const data = readData();
+      // pets
+      petsList.innerHTML='';
+      if(data.pets.length===0) petsList.innerHTML='<div style="color:var(--muted)">No pets yet. Add one to get started.</div>';
+      data.pets.forEach(p=>{
+        const d = document.createElement('div');d.className='pet-item';
+        d.innerHTML=`\n          <div class=\"pet-avatar\">${(p.name||'P').charAt(0).toUpperCase()}</div>\n          <div class=\"pet-meta\">\n            <h4>${escapeHtml(p.name)}</h4>\n            <p>${p.type} · ${p.breed} · ${p.age} yrs</p>\n          </div>\n          <div class=\"actions\">\n            <button class=\"ghost\" onclick=\"viewPet('${p.id}')\">View</button>\n            <button class=\"ghost\" onclick=\"deletePet('${p.id}')\">Delete</button>\n          </div>\n        `;
+        petsList.appendChild(d);
+      });
+      totalPets.innerText = data.pets.length + ' Pets';
+
+      // reminders
+      reminderList.innerHTML='';
+      const now = Date.now();
+      let upcoming = 0;
+      data.reminders.sort((a,b)=> new Date(a.datetime)-new Date(b.datetime)).forEach(r=>{
+        const row = document.createElement('div');row.className='reminder';
+        const pet = data.pets.find(x=>x.id===r.petId) || {name:'Unknown'};
+        row.innerHTML = `<div><strong>${escapeHtml(r.title)}</strong><div style=\"color:var(--muted);font-size:12px\">${escapeHtml(pet.name)} · ${fmtDate(r.datetime)} · ${r.freq}</div></div><div style=\"display:flex;gap:8px\"><button class=\"ghost\" onclick=\"deleteRem('${r.id}')\">Remove</button></div>`;
+        reminderList.appendChild(row);
+        if(new Date(r.datetime).getTime() > now) upcoming++;
+      });
+      upcomingRem.innerText = upcoming + ' Reminders';
+
+      // pet selector for chat
+      petSelector.innerHTML='<option value="">— Select pet —</option>';
+      data.pets.forEach(p=>{const opt=document.createElement('option');opt.value=p.id;opt.textContent=p.name;petSelector.appendChild(opt)});
+
+      // rem modal pet list
+      remPet.innerHTML='';
+      data.pets.forEach(p=>{const opt=document.createElement('option');opt.value=p.id;opt.textContent=p.name;remPet.appendChild(opt)});
+
+      // chats
+      chatMessages.innerHTML='';
+      const messages = data.chats || [];
+      messages.forEach(m=>{
+        const el = document.createElement('div');el.className='msg ' + (m.role==='user'?'user':'bot');el.textContent=m.text;chatMessages.appendChild(el);
+      });
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // CRUD operations (exposed on window for inline onclick handlers)
+    window.viewPet = function(id){
+      const data = readData();
+      const p = data.pets.find(x=>x.id===id); if(!p) return alert('Pet not found');
+      alert(`Name: ${p.name}\nType: ${p.type}\nBreed: ${p.breed}\nAge: ${p.age}\nNotes: ${p.notes}`);
+    }
+    window.deletePet = function(id){
+      if(!confirm('Delete this pet?')) return;
+      const data = readData(); data.pets = data.pets.filter(x=>x.id!==id); data.reminders = data.reminders.filter(r=>r.petId!==id); writeData(data);
+    }
+    window.deleteRem = function(id){
+      const data = readData(); data.reminders = data.reminders.filter(r=>r.id!==id); writeData(data);
+    }
+
+    // modal handlers
+    addPetBtn.addEventListener('click', ()=>{modal.style.display='flex';document.getElementById('modalTitle').innerText='Add Pet';petName.value='';petAge.value='';petBreed.value='';petNotes.value='';});
+    cancelModal.addEventListener('click', ()=>modal.style.display='none');
+    savePet.addEventListener('click', ()=>{
+      const data = readData();
+      const p = {id:genId(), name:petName.value||'Unnamed', age:petAge.value||0, breed:petBreed.value||'Unknown', type:petType.value, notes:petNotes.value||''};
+      data.pets.push(p); writeData(data); modal.style.display='none';
+    });
+
+    addReminderBtn.addEventListener('click', ()=>{remModal.style.display='flex';remTitle.value='';remDate.value='';remFreq.value='once'});
+    cancelRem.addEventListener('click', ()=>remModal.style.display='none');
+    saveRem.addEventListener('click', ()=>{
+      const data = readData();
+      if(!remPet.value){alert('Choose a pet');return}
+      const r = {id:genId(), petId:remPet.value, title:remTitle.value||'Reminder', datetime:new Date(remDate.value).toISOString(), freq:remFreq.value};
+      data.reminders.push(r); writeData(data); remModal.style.display='none';
+    });
+
+    // Chat handlers
+    sendChat.addEventListener('click', sendChatHandler);
+    chatInput.addEventListener('keydown', e=>{if(e.key==='Enter') sendChatHandler()});
+    clearChat.addEventListener('click', ()=>{if(confirm('Clear chat history?')){const data=readData();data.chats=[];writeData(data);}});
+
+    async function sendChatHandler(){
+      const text = chatInput.value.trim(); if(!text) return;
+      const petId = petSelector.value || null;
+      const data = readData();
+      data.chats.push({id:genId(),role:'user',text}); writeData(data);
+      chatInput.value='';
+
+      // add placeholder bot message
+      data.chats.push({id:genId(),role:'bot',text:'Typing...'}); writeData(data);
+
+      try{
+        const botText = await sendToAI(text, petId);
+        const fresh = readData();
+        // replace last bot placeholder
+        for(let i=fresh.chats.length-1;i>=0;i--){ if(fresh.chats[i].role==='bot'){ fresh.chats.splice(i,1,{id:genId(),role:'bot',text:botText}); break; }}
+        writeData(fresh);
+      }catch(err){
+        const fresh = readData();
+        for(let i=fresh.chats.length-1;i>=0;i--){ if(fresh.chats[i].role==='bot'){ fresh.chats.splice(i,1,{id:genId(),role:'bot',text:'Sorry, the assistant is not available right now. Try again later.'}); break; }}
+        writeData(fresh);
+        console.error(err);
+      }
+    }
+
+    // Enhanced rule-based AI + personality + API hook
+    async function sendToAI(message, petId){
+      const lower = message.toLowerCase();
+
+      // quick intent-responses
+      if(/\b(vomit|vomiting|throw up)\b/.test(lower)){
+        return 'Vomiting can be caused by many factors (diet, infection, toxins). Withhold food for a few hours, ensure water availability, and contact a vet if vomiting continues or contains blood.';
+      }
+      if(/\b(not eating|loss of appetite|not eat)\b/.test(lower)){
+        return 'Loss of appetite can signal illness or stress. Check for other symptoms such as lethargy, diarrhea, or vomiting. If appetite does not return within 24 hours (or sooner for puppies/kittens), consult a veterinarian.';
+      }
+      if(/\b(vaccin|vaccine|vaccination)\b/.test(lower)){
+        return 'Vaccination schedules depend on species and region. Puppies and kittens typically start core vaccines at 6–8 weeks. Keep a record and consult your local vet for the full schedule.';
+      }
+      if(/\b(fever|temperature|hot)\b/.test(lower)){
+        return 'If your pet has a fever, measure temperature if possible. Normal dog temp: ~38.3–39.2°C (101–102.5°F). If higher or pet appears unwell, contact a vet immediately.';
+      }
+      if(/\b(food|diet|feeding)\b/.test(lower)){
+        return 'Provide a balanced diet appropriate for age and breed. Avoid toxic foods like chocolate, grapes, raisins, onions, garlic, and xylitol-sweetened products. For personalized diet advice, share age, breed, and weight.';
+      }
+      if(/\b(walk|exercise|activity)\b/.test(lower)){
+        return 'Exercise needs depend on breed and age. Most dogs benefit from 30–60 minutes daily; cats need short interactive play sessions. Monitor for overexertion in hot weather.';
+      }
+      if(/\b(hello|hi|hey)\b/.test(lower)){
+        return 'Hello! I am your Pet Care Bot. Tell me about the issue or ask for reminders, feeding tips, or emergency steps.';
+      }
+      if(/\b(clean|groom|bath)\b/.test(lower)){
+        return 'Grooming frequency depends on breed. Brush regularly, bathe only as needed using pet-safe shampoo, and check ears and nails during grooming sessions.';
+      }
+      if(/\b(training|train|commands)\b/.test(lower)){
+        return 'Short, consistent training sessions (5–10 minutes) using positive reinforcement work best. Reward desired behaviour immediately and be patient.';
+      }
+
+      // try fetch to real AI via backend hook if available
+      try{
+        const reply = await callChatEndpoint({message, petId});
+        if(reply && typeof reply === 'string' && reply.trim().length>0) return reply;
+      }catch(e){
+        // fallback to default if API fails
+        console.warn('Backend AI hook failed, using fallback.');
+      }
+
+      // fallback answer
+      return 'Thanks — I don\'t have a perfect answer for that yet. Please provide more details or consult a veterinarian for urgent issues.';
+    }
+
+    // Backend API call example — your backend should call real AI (OpenAI / Dialogflow) securely
+    async function callChatEndpoint(payload){
+      // Replace '/api/chat' with your backend route that proxies requests to an AI provider.
+      const endpoint = '/api/chat';
+      const res = await fetch(endpoint, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      });
+      if(!res.ok) throw new Error('Chat endpoint error');
+      const json = await res.json();
+      // expect { reply: '...' }
+      return json.reply || '';
+    }
+
+    // Export / import
+    document.getElementById('exportBtn').addEventListener('click', ()=>{
+      const data = readData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='petcare-data.json'; document.body.appendChild(a); a.click(); a.remove();
+    });
+    document.getElementById('importBtn').addEventListener('click', ()=>{
+      const inp = document.createElement('input'); inp.type='file'; inp.accept='application/json'; inp.onchange = e =>{
+        const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ev =>{
+          try{const json = JSON.parse(ev.target.result); writeData(json); alert('Imported');}catch(err){alert('Invalid file')}
+        }; r.readAsText(f);
+      }; inp.click();
+    });
+
+    // small util
+    function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+    // initial render
+    renderAll();
+
+    // periodic check for reminders (simple): when a reminder datetime passes, show alert
+    setInterval(()=>{
+      const data = readData();
+      const now = Date.now();
+      let changed=false;
+      data.reminders.forEach(r=>{
+        const t = new Date(r.datetime).getTime();
+        if(t <= now && !r._notified){
+          r._notified = true;
+          changed = true;
+          const pet = data.pets.find(x=>x.id===r.petId);
+          if(confirm(`Reminder: ${r.title} for ${pet?pet.name:'pet'}. Mark as done?`)){
+            if(r.freq==='daily'){ r.datetime = new Date(Date.now() + 24*3600*1000).toISOString(); r._notified=false; }
+            else if(r.freq==='weekly'){ r.datetime = new Date(Date.now() + 7*24*3600*1000).toISOString(); r._notified=false; }
+            else { /* single - leave _notified true so it won't fire again */ }
+          }
+        }
+      });
+      if(changed) writeData(data);
+    }, 10*1000);
+
+    // project guide
+    document.getElementById('openGuide').addEventListener('click', ()=>{
+      alert('Project Guide:\n\n- Frontend: This HTML file. Uses localStorage for data. You can add pets, reminders, and chat.\n- AI: The chat uses built-in rule-based responses and will try a backend at /api/chat if available.\n- Backend: Implement /api/chat to accept {message, petId} and return {reply}. Proxy AI keys server-side.\n- Export/Import: Use to share dataset between team members.');
+    });
+
+  </script>
+</body>
+</html>
